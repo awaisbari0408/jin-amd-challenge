@@ -1,0 +1,4 @@
+# torch/torchvision come from the mandated ROCm base image and are pinned by a
+# constraints file at build time, so nothing here can replace them.
+transformers>=4.57
+accelerate
