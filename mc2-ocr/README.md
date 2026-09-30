@@ -41,11 +41,17 @@ strongest published MC2 entries.
    git clone https://github.com/awaisbari0408/jin-amd-challenge.git && cd jin-amd-challenge/mc2-ocr && bash scripts/notebook_test.sh
    ```
 2. **Fetch the weights** (resumable, ~17.5 GB): `bash scripts/fetch_model.sh`
-3. **Build** — the weights are baked in, one layer per shard:
-   `docker build -t <dockerhub-user>/jin-mc2:v1 .`
-4. **Push to Docker Hub** (public). Docker Hub already holds the ROCm base layers, so
-   only our layers upload. Put the image reference in the **"Mini Challenge 2 Image"**
-   field of the J-I-N submission — and don't commit that reference to this public repo.
+3. **Build and push in the cloud.** Every push to `main` that touches `mc2-ocr/` runs
+   `.github/workflows/mc2-image.yml` on GitHub's servers: it downloads the weights, builds,
+   checks the grader's hard gates (ROCm torch, < 60 GiB, mandated base layers, weights
+   present) and pushes to **`ghcr.io/awaisbari0408/jin-mc2:v1`** using the job's built-in
+   token. It can also be started by hand from the repo's **Actions** tab.
+4. The package must be **public** on GitHub (Package settings → Change visibility) so the
+   grader can pull it without credentials. Then put the image reference in the
+   **"Mini Challenge 2 Image"** field of the J-I-N submission.
+
+Local build (optional, needs ~50 GB of Docker storage): `bash scripts/fetch_model.sh`, then
+`docker build -t <name>:v1 .`
 
 ## Open questions for the organisers
 
