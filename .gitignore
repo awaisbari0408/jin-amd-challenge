@@ -4,3 +4,6 @@ __pycache__/
 .env
 *.sock
 mc2-ocr/models/
+mc3-rag/models/
+mc3-rag/.index/
+mc3-rag/.out/
