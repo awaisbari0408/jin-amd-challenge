@@ -1,0 +1,4 @@
+# Document parsers for MC3, installed on top of the shared MC2 layers.
+pypdf
+python-docx
+openpyxl

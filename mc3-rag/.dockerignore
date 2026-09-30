@@ -1,0 +1,7 @@
+kit/
+scripts/
+tests/
+*.md
+.index/
+.out/
+models/Qwen3-VL-8B-Instruct/.cache/
