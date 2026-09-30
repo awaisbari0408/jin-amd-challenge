@@ -14,7 +14,14 @@ from ocr_rules import PROMPT, clean
 
 SOCKET_PATH = os.environ.get("OCR_SOCKET", "/tmp/ocr.sock")
 READY_FILE = os.environ.get("OCR_READY_FILE", "/tmp/ocr.ready")
-MODEL_ID = os.environ.get("MODEL_ID", "Qwen/Qwen3-VL-8B-Instruct")
+HUB_MODEL_ID = os.environ.get("MODEL_ID", "Qwen/Qwen3-VL-8B-Instruct")
+BAKED_MODEL_DIR = os.environ.get("BAKED_MODEL_DIR", "/models/Qwen3-VL-8B-Instruct")
+# Prefer weights baked into the image; fall back to the Hugging Face Hub (notebook tests).
+if os.path.isfile(os.path.join(BAKED_MODEL_DIR, "config.json")):
+    MODEL_ID = BAKED_MODEL_DIR
+    os.environ["HF_HUB_OFFLINE"] = "1"  # never touch the network at grading time
+else:
+    MODEL_ID = HUB_MODEL_ID
 MAX_PIXELS = int(os.environ.get("OCR_MAX_PIXELS", str(1280 * 1280)))
 MIN_SIDE = int(os.environ.get("OCR_MIN_SIDE", "448"))
 MAX_NEW_TOKENS = int(os.environ.get("OCR_MAX_NEW_TOKENS", "48"))

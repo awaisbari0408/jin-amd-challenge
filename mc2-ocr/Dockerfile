@@ -2,9 +2,7 @@
 # Never squash or flatten this image.
 FROM rocm/pytorch:rocm10.0_ubuntu26.04_py3.14_pytorch_release_2.13.0
 
-ENV HF_HOME=/models \
-    MODEL_ID=Qwen/Qwen3-VL-8B-Instruct \
-    PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 COPY requirements.txt /app/requirements.txt
@@ -16,12 +14,14 @@ RUN python3 -c "import torch, torchvision; print(f'torch=={torch.__version__}\nt
  && pip install --no-cache-dir -c /tmp/constraints.txt -r /app/requirements.txt \
  && python3 -c "import torch; v=torch.__version__; print('torch', v); assert '+rocm' in v, v"
 
-# Optional: bake the weights into the image (faster, reliable startup; ~17 GB larger).
-# docker build --build-arg BAKE_MODEL=1 ...
-ARG BAKE_MODEL=0
-RUN if [ "$BAKE_MODEL" = "1" ]; then \
-      python3 -c "from huggingface_hub import snapshot_download as s; import os; s(os.environ['MODEL_ID'])"; \
-    fi
+# Model weights are baked in (see scripts/fetch_model.sh), so startup never depends on
+# network speed. One layer per weight shard: a failed push only retries that shard.
+ARG M=models/Qwen3-VL-8B-Instruct
+COPY ${M}/*.json ${M}/*.txt /models/Qwen3-VL-8B-Instruct/
+COPY ${M}/model-00001-of-00004.safetensors /models/Qwen3-VL-8B-Instruct/
+COPY ${M}/model-00002-of-00004.safetensors /models/Qwen3-VL-8B-Instruct/
+COPY ${M}/model-00003-of-00004.safetensors /models/Qwen3-VL-8B-Instruct/
+COPY ${M}/model-00004-of-00004.safetensors /models/Qwen3-VL-8B-Instruct/
 
 COPY app/ /app/
 RUN mkdir -p /app/output /app/input
